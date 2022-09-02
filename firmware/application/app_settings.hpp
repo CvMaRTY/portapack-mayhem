@@ -60,6 +60,9 @@ public:
 		uint8_t 	tx_gain;
 		uint8_t 	vga;
 		uint8_t		volume;
+		uint8_t		rx_squelch;
+		uint8_t		scanner_wait;
+		std::string preset;
 	};
 
 	int load(std::string application, AppSettings* settings);
