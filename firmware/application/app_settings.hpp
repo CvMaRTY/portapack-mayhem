@@ -59,6 +59,7 @@ public:
 		uint32_t 	tx_frequency;
 		uint8_t 	tx_gain;
 		uint8_t 	vga;
+		uint8_t		volume;
 	};
 
 	int load(std::string application, AppSettings* settings);

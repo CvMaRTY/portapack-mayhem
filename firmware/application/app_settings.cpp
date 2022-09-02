@@ -51,6 +51,7 @@ int app_settings::load(std::string application, AppSettings* settings) {
 			settings->tx_amp=std::app_settings::read_long_long(file_content, "tx_amp=");
 			settings->tx_frequency=std::app_settings::read_long_long(file_content, "tx_frequency=");
 			settings->tx_gain=std::app_settings::read_long_long(file_content, "tx_gain=");
+			settings->volume=std::app_settings::read_long_long(file_content, "volume=");
 			rc = SETTINGS_OK;
 		}
 		else rc = SETTINGS_UNABLE_TO_LOAD;
@@ -71,6 +72,7 @@ int app_settings::save(std::string application, AppSettings* settings) {
 			settings_file.write_line("baseband_bandwidth="+to_string_dec_uint(portapack::receiver_model.baseband_bandwidth()));
 			settings_file.write_line("channel_bandwidth="+to_string_dec_uint(portapack::transmitter_model.channel_bandwidth()));
 			settings_file.write_line("lna="+to_string_dec_uint(portapack::receiver_model.lna()));
+			settings_file.write_line("modulation="+to_string_dec_uint(settings->modulation));
 			settings_file.write_line("rx_amp="+to_string_dec_uint(portapack::receiver_model.rf_amp()));
 			settings_file.write_line("sampling_rate="+to_string_dec_uint(portapack::receiver_model.sampling_rate()));
 			settings_file.write_line("tx_amp="+to_string_dec_uint(portapack::transmitter_model.rf_amp()));
@@ -79,6 +81,7 @@ int app_settings::save(std::string application, AppSettings* settings) {
 			// Save other settings from struct
 			settings_file.write_line("rx_frequency="+to_string_dec_uint(settings->rx_frequency));
 			settings_file.write_line("tx_frequency="+to_string_dec_uint(settings->tx_frequency));
+			settings_file.write_line("volume="+to_string_dec_uint(settings->volume));
 
 			rc = SETTINGS_OK;
 		}

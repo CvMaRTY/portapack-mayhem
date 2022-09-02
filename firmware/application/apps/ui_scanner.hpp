@@ -120,6 +120,10 @@ public:
 private:
 	NavigationView& nav_;
 
+	// app save settings
+	std::app_settings 		settings { }; 		
+	std::app_settings::AppSettings 	app_settings { };	
+	
 	void start_scan_thread();
 	size_t change_mode(uint8_t mod_type);
 	void show_max();

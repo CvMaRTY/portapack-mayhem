@@ -154,6 +154,16 @@ void ScannerView::focus() {
 }
 
 ScannerView::~ScannerView() {
+
+	// save app settings
+	app_settings.lna = receiver_model.lna();
+	app_settings.vga = receiver_model.vga();
+	app_settings.rx_amp = receiver_model.rf_amp();
+	app_settings.volume = field_volume.value();
+	app_settings.modulation = field_mode.selected_index_value();
+	//modulation is set in app_settings when changed
+	settings.save("rx_scanner", &app_settings);
+
 	audio::output::stop();
 	receiver_model.disable();
 	baseband::shutdown();
@@ -203,8 +213,29 @@ ScannerView::ScannerView(
 
 	});
 
-	def_step = change_mode(AM);	//Start on AM
-	field_mode.set_by_value(AM);	//Reflect the mode into the manual selector
+
+	// load app settings
+	auto rc = settings.load("rx_scanner", &app_settings);
+	if(rc == SETTINGS_OK) {
+		field_lna.set_value(app_settings.lna);
+		field_vga.set_value(app_settings.vga);
+		field_rf_amp.set_value(app_settings.rx_amp);
+		field_volume.set_value(app_settings.volume);
+
+		uint8_t tempmode = app_settings.modulation;
+		//nav_.display_modal("Chris Debug", "Result " + to_string_dec_uint(tempmode));
+		
+		if(tempmode>2){tempmode=AM;}
+		def_step = change_mode(tempmode);	
+		field_mode.set_by_value(tempmode);
+	}
+	else {
+		field_volume.set_value((receiver_model.headphone_volume() - audio::headphone::volume_range().max).decibel() + 99);
+		def_step = change_mode(AM);		//Start on AM
+		field_mode.set_by_value(AM);	//Reflect the mode into the manual selector
+	}
+
+
 
 	//HELPER: Pre-setting a manual range, based on stored frequency
 	rf::Frequency stored_freq = persistent_memory::tuned_frequency();
@@ -377,12 +408,17 @@ ScannerView::ScannerView(
 	//PRE-CONFIGURATION:
 	field_wait.on_change = [this](int32_t v) {	wait = v;	}; 	field_wait.set_value(5);
 	field_squelch.on_change = [this](int32_t v) {	squelch = v;	}; 	field_squelch.set_value(-10);
-	field_volume.set_value((receiver_model.headphone_volume() - audio::headphone::volume_range().max).decibel() + 99);
+	//field_volume.set_value((receiver_model.headphone_volume() - audio::headphone::volume_range().max).decibel() + 99);
 	field_volume.on_change = [this](int32_t v) { this->on_headphone_volume_changed(v);	};
 
 	// LEARN FREQUENCIES
 	std::string scanner_txt = "SCANNER";
 	frequency_file_load(scanner_txt);
+
+
+				// Use display_modal ?
+			//nav_.display_modal("Chris Debug", "Result " + to_string_dec_uint(app_settings.modulation));
+
 }
 
 void ScannerView::frequency_file_load(std::string file_name, bool stop_all_before) {
@@ -554,6 +590,8 @@ size_t ScannerView::change_mode(uint8_t new_mod) { //Before this, do a scan_thre
 		receiver_model.set_sampling_rate(3072000);	receiver_model.set_baseband_bandwidth(2000000);	
 		break;
 	}
+	
+	//app_settings.modulation = new_mod;
 
 	return mod_step[new_mod];
 }
