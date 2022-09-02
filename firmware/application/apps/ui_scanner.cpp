@@ -161,7 +161,8 @@ ScannerView::~ScannerView() {
 	app_settings.rx_amp = receiver_model.rf_amp();
 	app_settings.volume = field_volume.value();
 	app_settings.modulation = field_mode.selected_index_value();
-	//modulation is set in app_settings when changed
+	app_settings.scanner_wait = field_wait.value();
+	app_settings.channel_bandwidth = field_bw.selected_index_value();
 	settings.save("rx_scanner", &app_settings);
 
 	audio::output::stop();
@@ -228,6 +229,10 @@ ScannerView::ScannerView(
 		if(tempmode>2){tempmode=AM;}
 		def_step = change_mode(tempmode);	
 		field_mode.set_by_value(tempmode);
+
+		field_wait.set_value(app_settings.scanner_wait);
+		field_bw.set_selected_index(app_settings.channel_bandwidth);
+
 	}
 	else {
 		field_volume.set_value((receiver_model.headphone_volume() - audio::headphone::volume_range().max).decibel() + 99);
@@ -406,7 +411,7 @@ ScannerView::ScannerView(
 	};
 
 	//PRE-CONFIGURATION:
-	field_wait.on_change = [this](int32_t v) {	wait = v;	}; 	field_wait.set_value(5);
+	field_wait.on_change = [this](int32_t v) {	wait = v;	}; 	//field_wait.set_value(5);
 	field_squelch.on_change = [this](int32_t v) {	squelch = v;	}; 	field_squelch.set_value(-10);
 	//field_volume.set_value((receiver_model.headphone_volume() - audio::headphone::volume_range().max).decibel() + 99);
 	field_volume.on_change = [this](int32_t v) { this->on_headphone_volume_changed(v);	};
